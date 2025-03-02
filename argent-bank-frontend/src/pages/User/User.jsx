@@ -1,61 +1,53 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { setUserProfile } from "../../redux/userSlice.js";
-import UserData from "../../components/User/Userdata.jsx";
-import Account from "../../components/Account/Account";
-import "./User.css";
+import React, { useEffect } from "react"; // Importation de React et du hook useEffect
+import { useSelector, useDispatch } from "react-redux"; // Importation de useSelector et useDispatch de Redux
+import { setUserProfile } from "../../redux/userSlice"; // Importation de l'action setUserProfile de userSlice
+import { fetchUserDataAPI } from "../../services/userdataService"; // Importation de la fonction API
+import UserData from "../../components/User/Userdata"; // Importation du composant UserData pour afficher les informations utilisateur
+import Account from "../../components/Account/Account"; // Importation du composant Account pour afficher les comptes bancaires
+import "./User.css"; // Importation du fichier CSS pour le style de la page
 
 function User() {
-  const token = useSelector((state) => state.auth.token);
-  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token); // Récupération du token d'authentification depuis Redux
+  const dispatch = useDispatch(); // Hook pour envoyer des actions Redux
 
   useEffect(() => {
+    // Si le token est disponible, on lance la récupération des données utilisateur
     if (token) {
       const fetchUserData = async () => {
         try {
-          const response = await fetch("http://localhost:3001/api/v1/user/profile", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          // Utilisation de la fonction API pour récupérer les données utilisateur
+          const userData = await fetchUserDataAPI(token);
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log("Données utilisateur récupérées :", data);
+          if (userData) {
+            // Si les données sont valides, on prépare les données utilisateur à stocker dans Redux
+            const userProfile = {
+              id: userData.id,
+              email: userData.email,
+              firstname: userData.firstName,
+              lastname: userData.lastName,
+              username: userData.userName,
+              createdAt: userData.createdAt,
+              updatedAt: userData.updatedAt,
+            };
 
-            if (data.body) {
-              const userData = {
-                id: data.body.id,
-                email: data.body.email,
-                firstname: data.body.firstName,
-                lastname: data.body.lastName,
-                username: data.body.userName,
-                createdAt: data.body.createdAt,
-                updatedAt: data.body.updatedAt,
-              };
-
-              dispatch(setUserProfile(userData));
-            } else {
-              console.error("Réponse API invalide :", data);
-            }
+            // Envoi des données utilisateur à Redux via l'action setUserProfile
+            dispatch(setUserProfile(userProfile));
           } else {
-            console.error("Erreur lors de la récupération du profil :", response.statusText);
+            console.error("Réponse API invalide :", userData); // Si les données sont invalides
           }
         } catch (error) {
-          console.error("Erreur réseau :", error);
+          console.error("Erreur lors de la récupération des données utilisateur :", error.message); // Gestion des erreurs
         }
       };
 
-      fetchUserData();
+      fetchUserData(); // Appel de la fonction pour récupérer les données utilisateur
     }
-  }, [dispatch, token]);
+  }, [dispatch, token]); // L'effet se déclenche à chaque fois que dispatch ou token changent
 
   return (
     <div className="profile-page">
       <main className="bg-dark">
-        {/* Utilisation du nouveau composant UserData */}
+        {/* Utilisation du composant UserData pour afficher les informations utilisateur */}
         <UserData />
 
         {/* Comptes bancaires */}
@@ -68,3 +60,4 @@ function User() {
 }
 
 export default User;
+

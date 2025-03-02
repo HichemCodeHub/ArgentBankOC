@@ -145,12 +145,12 @@ paths:
           description: Compte introuvable
         '500':
           description: Erreur interne du serveur
-  /transactions/{transactionID}/category:
+  /transactions/{transactionID}/update:
     put:
       tags:
         - Module Comptes et Transactions
-      summary: Mettre à jour la catégorie de la transaction
-      description: API pour mettre à jour la catégorie d'une transaction
+      summary: Mettre à jour la catégorie et la note de la transaction
+      description: API pour mettre à jour à la fois la catégorie et la note d'une transaction
       security: 
         - Bearer: []
       parameters:
@@ -160,114 +160,34 @@ paths:
           required: true
           type: string
         - in: body
-          name: category
-          description: Catégorie modifiée de la transaction
+          name: updateData
+          description: Données pour mettre à jour la catégorie et la note de la transaction
           required: true
           schema:
-            $ref: '#/definitions/TransactionCategory'
+            type: object
+            properties:
+              category:
+                type: string
+                description: Nouvelle catégorie de la transaction
+              note:
+                type: string
+                description: Nouvelle note de la transaction
       responses:
         '200':
-          description: Catégorie de la transaction modifiée avec succès
-          schema: 
-            $ref: '#/definitions/TransactionCategory'
-        '401': 
+          description: Catégorie et note de la transaction mises à jour avec succès
+          schema:
+            type: object
+            properties:
+              transactionID:
+                type: string
+              category:
+                type: string
+              note:
+                type: string
+        '401':
           description: Utilisateur non autorisé
-        '404': 
+        '404':
           description: Transaction non trouvée
-        '500': 
-          description: Erreur interne du serveur
-  /transactions/{transactionID}/note:
-    post:
-      tags:
-        - Module Comptes et Transactions
-      summary: Ajouter une note à la transaction
-      description: API pour ajouter une note à une transaction
-      security: 
-        - Bearer: []
-      parameters:
-        - in: path
-          name: transactionID
-          description: ID d'une transaction
-          required: true
-          type: string
-        - in: body
-          name: note
-          description: Nouvelle note de la transaction
-          required: true
-          schema: 
-            $ref: '#/definitions/TransactionNote'
-      responses:
-        '200':
-          description: Note ajoutée à la transaction avec succès
-          schema: 
-            $ref: '#/definitions/TransactionResponseNote'
-        '401':
-          description: Utilisateur non autorisé
-        '404':
-          description: Note non créée
-        '500':
-          description: Erreur interne du serveur
-  /transactions/{transactionID}/note/{noteID}:
-    put:
-      tags:
-        - Module Comptes et Transactions
-      summary: Modifier la note de la transaction
-      description: API pour modifier une note d'une transaction
-      security: 
-        - Bearer: []
-      parameters:
-        - in: path
-          name: transactionID
-          description: ID d'une transaction
-          required: true
-          type: string
-        - in: path
-          name: noteID
-          description: ID d'une note
-          required: true
-          type: string
-        - in: body
-          name: note
-          description: Modifier la note de la transaction
-          required: true
-          schema: 
-            $ref: '#/definitions/TransactionNote'
-      responses:
-        '200':
-          description: Note modifiée avec succès
-          schema:
-            $ref: '#/definitions/TransactionResponseNote'
-        '401':
-          description: Utilisateur non autorisé
-        '404':
-          description: Note non modifiée
-        '500':
-          description: Erreur interne du serveur
-    delete:
-      tags:
-        - Module Comptes et Transactions
-      summary: Supprimer la note de la transaction
-      description: API pour supprimer une note d'une transaction
-      security:
-        - Bearer: []
-      parameters:
-        - in: path
-          name: transactionID
-          description: ID d'une transaction
-          required: true
-          type: string
-        - in: path
-          name: noteID
-          description: ID d'une note
-          required: true
-          type: string
-      responses:
-        '200':
-          description: Note supprimée avec succès
-        '401':
-          description: Utilisateur non autorisé
-        '404':
-          description: Note non supprimée
         '500':
           description: Erreur interne du serveur
 securityDefinitions:

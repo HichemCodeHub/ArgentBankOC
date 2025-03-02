@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginSuccess } from "../../redux/authSlice";
+import { loginUser } from "../../services/authService"; // Importation de la fonction d'API
 
 import "./Loginform.css";
 
+// Fonction pour valider l'adresse e-mail
 const ValidEmail = (email) => {
   const regex = /^\S+@\S+\.\S+$/;
   return regex.test(email);
 };
 
+// Fonction pour valider le mot de passe
 const ValidPassword = (password) => {
   const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{3,}$/;
   return regex.test(password);
@@ -26,43 +29,36 @@ function Loginform() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Validation de l'email et du mot de passe
     if (!ValidEmail(email)) {
-      setErrorMessage("Invalid email adress");
+      setErrorMessage("Invalid email address");
       return;
     }
+
     if (!ValidPassword(password)) {
       setErrorMessage("Invalid password");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:3001/api/v1/user/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // Appel à la fonction d'API de connexion
+      const data = await loginUser(email, password);
+      const { token, userProfile } = data;
 
-      if (response.ok) {
-        const data = await response.json();
-        const token = data.body.token;
-        const userProfile = data.body.userProfile;
+      // Dispatch de l'action loginSuccess
+      dispatch(loginSuccess({ token, userProfile }));
 
-        dispatch(loginSuccess({ token, userProfile })); // Maintenant tu envoies aussi les données utilisateur
-
-        sessionStorage.setItem("token", token);
-        if (rememberMe) {
-          localStorage.setItem("token", token);
-        }
-
-        navigate("/user");
-      } else {
-        const error = "Incorrect email/password";
-        dispatch(loginFailed(error));
+      // Sauvegarde du token dans sessionStorage et localStorage
+      sessionStorage.setItem("token", token);
+      if (rememberMe) {
+        localStorage.setItem("token", token);
       }
+
+      // Redirection vers la page du profil utilisateur
+      navigate("/user");
     } catch (error) {
-      console.error(error);
+      setErrorMessage(error.message); // Affichage de l'erreur
     }
   };
 

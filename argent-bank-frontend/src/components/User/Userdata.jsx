@@ -1,54 +1,46 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUsername } from "../../redux/userSlice"; 
-import "./Userdata.css";
-
-
+import React, { useState } from "react"; // Importation de React et du hook useState
+import { useDispatch, useSelector } from "react-redux"; // Importation de useDispatch et useSelector de Redux
+import { updateUsername } from "../../redux/userSlice"; // Importation de l'action updateUsername de userSlice
+import { updateUsernameAPI } from "../../services/userService"; // Importation de la fonction API
+import "./Userdata.css"; // Importation du fichier CSS pour le style
 
 /* Fonction pour valider le pseudo */
-const validateUsername = (name) => /^[a-zA-Z]+(?:[-']?[a-zA-Z]+)*$/.test(name);
+const validateUsername = (name) => /^[a-zA-Z]+(?:[-']?[a-zA-Z]+)*$/.test(name); // Expression régulière pour valider un nom d'utilisateur valide
 
 function Userdata() {
-  const dispatch = useDispatch();
-  const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch(); // Hook pour envoyer des actions Redux
+  const token = useSelector((state) => state.auth.token); // Récupération du token d'authentification depuis Redux
   const { username, firstname, lastname } = useSelector(
     (state) => state.user.userData
-  );
+  ); // Récupération des données utilisateur depuis Redux (username, firstname, lastname)
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [newUsername, setNewUsername] = useState("");
-  const [error, setError] = useState("");
+  // Déclaration des états pour gérer l'édition et les erreurs
+  const [isEditing, setIsEditing] = useState(false); // État pour savoir si l'utilisateur est en mode édition
+  const [newUsername, setNewUsername] = useState(""); // État pour stocker le nouveau nom d'utilisateur
+  const [error, setError] = useState(""); // État pour stocker les messages d'erreur
 
+  // Fonction pour activer/désactiver le mode édition
   const toggleEditing = () => setIsEditing((prev) => !prev);
+
+  // Fonction pour gérer le changement du nom d'utilisateur
   const handleUsernameChange = (e) => setNewUsername(e.target.value);
 
+  // Fonction pour soumettre le formulaire de modification du nom d'utilisateur
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Empêche le comportement par défaut du formulaire (rechargement de la page)
+    // Vérifie si le nouveau nom d'utilisateur est valide
     if (!validateUsername(newUsername)) {
-      setError("Nom d'utilisateur invalide");
-      return;
+      setError("Nom d'utilisateur invalide"); // Affiche un message d'erreur si le pseudo est invalide
+      return; // Arrête la fonction si le pseudo est invalide
     }
-    setError("");
+    setError(""); // Réinitialise l'erreur si le pseudo est valide
 
     try {
-      const response = await fetch("http://localhost:3001/api/v1/user/profile", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userName: newUsername }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        dispatch(updateUsername(data.body.userName));
-        toggleEditing();
-      } else {
-        console.error("Erreur lors de la mise à jour du nom d'utilisateur");
-      }
+      const updatedUsername = await updateUsernameAPI(newUsername, token); // Appel de la fonction API pour mettre à jour le nom d'utilisateur
+      dispatch(updateUsername(updatedUsername)); // Envoie l'action updateUsername au store Redux pour mettre à jour le nom d'utilisateur
+      toggleEditing(); // Désactive le mode édition
     } catch (err) {
-      console.error("Erreur réseau :", err);
+      setError(err.message); // Affiche le message d'erreur si l'appel API échoue
     }
   };
 
@@ -76,8 +68,16 @@ function Userdata() {
               <input type="text" id="lastname" value={lastname} disabled />
             </div>
             <div className="buttons">
-              <button type="submit" className="edit-username-button">Save</button>
-              <button type="button" className="edit-username-button" onClick={toggleEditing}>Cancel</button>
+              <button type="submit" className="edit-username-button">
+                Save
+              </button>
+              <button
+                type="button"
+                className="edit-username-button"
+                onClick={toggleEditing}
+              >
+                Cancel
+              </button>
             </div>
             {error && <p className="error-message">{error}</p>}
           </form>
@@ -85,10 +85,12 @@ function Userdata() {
       ) : (
         <div>
           <h2>
-          Welcome back <br />
+            Welcome back <br />
             {firstname} {lastname} !
           </h2>
-          <button className="edit-button" onClick={toggleEditing}>Edit Name</button>
+          <button className="edit-button" onClick={toggleEditing}>
+            Edit Name
+          </button>
         </div>
       )}
     </div>
