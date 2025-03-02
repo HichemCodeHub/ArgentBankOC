@@ -3,9 +3,9 @@ import Banner from "../../components/Banner/Banner.jsx";
 import FeatureItems from "../../components/Featureitems/Featureitems.jsx";
 
 // Features Icon
-import Iconmoney from "../../assets/img/icon-money.png";
-import chatIcon from "../../assets/img/icon-chat.png";
-import Iconsecurity from "../../assets/img/icon-security.png";
+import Iconmoney from "../../assets/img/icon-money.webp";
+import chatIcon from "../../assets/img/icon-chat.webp";
+import Iconsecurity from "../../assets/img/icon-security.webp";
 
 // Array of features
 const features = [

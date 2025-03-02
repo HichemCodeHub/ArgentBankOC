@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux"; // Import des hooks pour accéder au state et dispatcher des actions
 import { Link } from "react-router-dom"; // Import de Link pour la navigation entre les pages
 import { useNavigate } from "react-router-dom"; // Import de useNavigate pour naviguer programmatiquement
-import Logo from "../../assets/img/argentBankLogo.png"; // Import du logo de la banque
+import Logo from "../../assets/img/argentBankLogo.webp"; // Import du logo de la banque
 import { logout } from "../../redux/authSlice"; // Import de l'action logout pour déconnecter l'utilisateur
 import { clearUserProfile } from "../../redux/userSlice"; // Import de l'action pour effacer les données utilisateur
 import "./Header.css"; // Import du fichier CSS pour la mise en forme
